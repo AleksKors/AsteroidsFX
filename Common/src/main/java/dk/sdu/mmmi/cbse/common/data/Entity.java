@@ -51,6 +51,12 @@ public class Entity implements Serializable {
     public double getRotation() {
         return rotation;
     }
-        
 
+    public boolean outOfBounds(GameData gameData) {
+        if (this.x < 0) return true;
+        if (this.y < 0) return true;
+        if (this.x > gameData.getDisplayWidth()) return true;
+        if (this.y > gameData.getDisplayHeight()) return true;
+        else return false;
+    }
 }

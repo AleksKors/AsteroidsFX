@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class World {
 
     private final Map<String, Entity> entityMap = new ConcurrentHashMap<>();
+    public List<Entity> entitiesToRemove = new ArrayList<>();
 
     public String addEntity(Entity entity) {
         entityMap.put(entity.getID(), entity);
@@ -25,6 +26,7 @@ public class World {
 
     public void removeEntity(Entity entity) {
         entityMap.remove(entity.getID());
+        entitiesToRemove.add(entity);
     }
 
     public Collection<Entity> getEntities() {

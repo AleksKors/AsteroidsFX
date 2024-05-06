@@ -29,6 +29,7 @@ public class Main extends Application {
     private final GameData gameData = new GameData();
     private final World world = new World();
     private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
+    private final Pane gameWindow = new Pane();
     
 
     public static void main(String[] args) {
@@ -38,7 +39,6 @@ public class Main extends Application {
     @Override
     public void start(Stage window) throws Exception {
         Text text = new Text(10, 20, "Destroyed asteroids: 0");
-        Pane gameWindow = new Pane();
         gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
         gameWindow.getChildren().add(text);
 
@@ -105,14 +105,26 @@ public class Main extends Application {
         for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
             entityProcessorService.process(gameData, world);
         }
-//        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
-//            postEntityProcessorService.process(gameData, world);
-//        }
+        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
+            postEntityProcessorService.process(gameData, world);
+        }
     }
 
     private void draw() {
+        for(Entity entity : world.entitiesToRemove){
+            gameWindow.getChildren().remove(polygons.get(entity));
+            polygons.remove(entity);
+        }
+        world.entitiesToRemove.clear();
+
         for (Entity entity : world.getEntities()) {
             Polygon polygon = polygons.get(entity);
+            if (polygon == null) {
+                polygon = new Polygon(entity.getPolygonCoordinates());
+                polygons.put(entity, polygon);
+                gameWindow.getChildren().add(polygon);
+            }
+
             polygon.setTranslateX(entity.getX());
             polygon.setTranslateY(entity.getY());
             polygon.setRotate(entity.getRotation());
