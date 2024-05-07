@@ -1,5 +1,7 @@
 package dk.sdu.mmmi.cbse.asteroidsystem;
 
+import dk.sdu.mmmi.cbse.common.asteroid.IAsteroidSplitter;
+import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.entities.Entity;
@@ -11,9 +13,32 @@ import dk.sdu.mmmi.cbse.common.entities.types.entityType;
  * @author Aleksander
  */
 public class Asteroid extends Entity implements ICollideableEntity {
+    private IAsteroidSplitter asteroidSplitter = new AsteroidSplitterImplementation();
+
     public Asteroid() {
-        this.setRadius(9);
-        this.setPolygonCoordinates(-9,0,-3,9,3,6,6,9,9,0,3,-6,-6,-3);
+        this.setHealth(3);
+        this.setRadius(10 * this.getHealth());
+        this.setPolygonCoordinates(
+                -10 * this.getHealth(), 5 * this.getHealth(),
+                -4 * this.getHealth(), 10 * this.getHealth(),
+                4 * this.getHealth(), 6 * this.getHealth(),
+                6 * this.getHealth(), 10 * this.getHealth(),
+                10 * this.getHealth(), 5 * this.getHealth(),
+                4 * this.getHealth(), -6 * this.getHealth(),
+                -6 * this.getHealth(), -4 * this.getHealth());
+        this.setType(entityType.ASTEROID);
+    }
+    public Asteroid(int health) {
+        this.setHealth(health);
+        this.setRadius(10 * health);
+        this.setPolygonCoordinates(
+                -10 * health, 5 * health,
+                -4 * health, 10 * health,
+                4 * health, 6 * health,
+                6 * health, 10 * health,
+                10 * health, 5 * health,
+                4 * health, -6 * health,
+                -6 * health, -4 * health);
         this.setType(entityType.ASTEROID);
     }
 
@@ -47,6 +72,11 @@ public class Asteroid extends Entity implements ICollideableEntity {
 
     @Override
     public void collide(World world, Entity otherEntity) {
+        if (otherEntity instanceof Bullet && this.getHealth() > 1) {
+            this.asteroidSplitter.splitAsteroid(this, world);
+            world.removeEntity(this);
+            return;
+        }
         world.removeEntity(this);
     }
 }

@@ -16,6 +16,15 @@ public class Entity implements Serializable {
     private double rotation;
     private float radius;
     private entityType type;
+    private int health;
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
             
 
     public String getID() {

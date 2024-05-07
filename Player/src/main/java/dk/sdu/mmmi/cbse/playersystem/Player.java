@@ -13,6 +13,7 @@ import dk.sdu.mmmi.cbse.common.entities.types.entityType;
  */
 public class Player extends ShootingEntity implements ICollideableEntity {
     public Player() {
+        this.setHealth(10);
         this.setPolygonCoordinates(-8,-6,8,0,-8,6);
         this.setRadius(8);
         this.setType(entityType.PLAYER);
@@ -20,15 +21,16 @@ public class Player extends ShootingEntity implements ICollideableEntity {
 
     @Override
     public void collide(World world, Entity otherEntity) {
+        int oldHealth = getHealth();
         if (otherEntity.getType() == entityType.ASTEROID) {
-            world.removeEntity(this);
+            this.setHealth(oldHealth -1);
         }
         if (otherEntity.getType() == entityType.BULLET) {
             Bullet bullet = (Bullet) otherEntity;
-            if (bullet.getShooter() == this) {
-                return;
+            if (bullet.getShooter() != this) {
+                this.setHealth(oldHealth -1);
             }
-            world.removeEntity(this);
         }
+        if (getHealth() <= 0) {world.removeEntity(this);}
     }
 }
