@@ -1,4 +1,6 @@
-package dk.sdu.mmmi.cbse.common.data;
+package dk.sdu.mmmi.cbse.common.entities;
+
+import dk.sdu.mmmi.cbse.common.data.GameData;
 
 import java.io.Serializable;
 import java.util.UUID;

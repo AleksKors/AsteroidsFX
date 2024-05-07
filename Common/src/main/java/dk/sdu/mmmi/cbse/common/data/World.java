@@ -1,5 +1,7 @@
 package dk.sdu.mmmi.cbse.common.data;
 
+import dk.sdu.mmmi.cbse.common.entities.Entity;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,8 +18,10 @@ public class World {
     public List<Entity> entitiesToRemove = new ArrayList<>();
 
     public String addEntity(Entity entity) {
-        entityMap.put(entity.getID(), entity);
-        return entity.getID();
+        if (entity != null) {
+            entityMap.put(entity.getID(), entity);
+            return entity.getID();
+        } else return null;
     }
 
     public void removeEntity(String entityID) {
