@@ -17,16 +17,21 @@ public class BulletControlSystem implements IEntityProcessingService, BulletSPI 
             double changeY = Math.sin(Math.toRadians(bullet.getRotation()))*3;
             bullet.setX(bullet.getX() + changeX);
             bullet.setY(bullet.getY() + changeY);
+
+            if (bullet.outOfBounds(gameData)) {
+                world.removeEntity(bullet);
+            }
         }
     }
 
     @Override
-    public Entity createBullet(Entity shooter, GameData gameData) {
+    public Entity createBullet(ShootingEntity shooter, GameData gameData) {
         if (shootCheck(shooter)) {
             Bullet bullet = new Bullet();
             bullet.setX(shooter.getX());
             bullet.setY(shooter.getY());
             bullet.setRotation(shooter.getRotation());
+            bullet.setShooter((ShootingEntity) shooter);
             ((ShootingEntity) shooter).setLastShot();
             return bullet;
         }

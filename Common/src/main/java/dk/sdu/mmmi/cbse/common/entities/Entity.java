@@ -1,6 +1,7 @@
 package dk.sdu.mmmi.cbse.common.entities;
 
 import dk.sdu.mmmi.cbse.common.data.GameData;
+import dk.sdu.mmmi.cbse.common.entities.types.entityType;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -13,6 +14,8 @@ public class Entity implements Serializable {
     private double x;
     private double y;
     private double rotation;
+    private float radius;
+    private entityType type;
             
 
     public String getID() {
@@ -60,5 +63,20 @@ public class Entity implements Serializable {
         if (this.x > gameData.getDisplayWidth()) return true;
         if (this.y > gameData.getDisplayHeight()) return true;
         else return false;
+    }
+
+    public float getRadius() {
+        return this.radius;
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
+    }
+
+    public entityType getType() {
+        return type;
+    }
+    public void setType(entityType type) {
+        this.type = type;
     }
 }

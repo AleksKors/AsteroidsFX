@@ -9,7 +9,7 @@ public class AsteroidControlSystem implements IEntityProcessingService {
 
     @Override
     public void process(GameData gameData, World world) {
-        if (world.getEntities(Asteroid.class).size()<10){
+        if (world.getEntities(Asteroid.class).size()<5){
             Asteroid.spawn(gameData, world);
         }
         for (Entity asteroid : world.getEntities(Asteroid.class)) {

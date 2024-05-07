@@ -5,6 +5,7 @@ import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.GameKeys;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.entities.Entity;
+import dk.sdu.mmmi.cbse.common.entities.ShootingEntity;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
 import java.util.Collection;
@@ -32,9 +33,11 @@ public class PlayerControlSystem implements IEntityProcessingService {
                 player.setY(player.getY() + changeY);
             }
             if (gameData.getKeys().isDown(GameKeys.SPACE)) {
+                if (player instanceof ShootingEntity shootingPlayer) {
                 getBulletSPIs().stream().findFirst().ifPresent(
-                        spi ->{world.addEntity(spi.createBullet(player, gameData));}
+                        spi ->{world.addEntity(spi.createBullet(shootingPlayer, gameData));}
                 );
+                }
             }
 
             if (player.outOfBounds(gameData)){

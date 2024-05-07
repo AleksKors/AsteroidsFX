@@ -1,9 +1,11 @@
 package dk.sdu.mmmi.cbse.enemysystem;
 
+import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.bullet.BulletSPI;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.entities.Entity;
+import dk.sdu.mmmi.cbse.common.entities.ShootingEntity;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
 import java.util.Collection;
@@ -15,6 +17,14 @@ import static java.util.stream.Collectors.toList;
 public class EnemyControlSystem implements IEntityProcessingService {
     @Override
     public void process(GameData gameData, World world) {
+        if (world.getEntities(Enemy.class).size()<2){
+            Enemy enemy = new Enemy();
+            int x = (int) (Math.random() * gameData.getDisplayWidth());
+            int y = (int) (Math.random() * gameData.getDisplayHeight());
+            enemy.setX(x);
+            enemy.setY(y);
+            world.addEntity(enemy);
+        }
         for (Entity enemy : world.getEntities(Enemy.class)) {
             int shoot = (int) (Math.random()*50);
             int rotation = (int) (Math.random()*20-10);
@@ -26,10 +36,14 @@ public class EnemyControlSystem implements IEntityProcessingService {
                 enemy.setRotation(enemy.getRotation() + rotation);
             }
 
-            if (shoot == 1){
-                getBulletSPIs().stream().findFirst().ifPresent(
-                    spi ->{world.addEntity(spi.createBullet(enemy, gameData));}
-                );
+            if (shoot == 1) {
+                if (enemy instanceof ShootingEntity shootingEnemy) {
+                    getBulletSPIs().stream().findFirst().ifPresent(
+                            spi -> {
+                                world.addEntity(spi.createBullet(shootingEnemy, gameData));
+                            }
+                    );
+                }
             }
 
             if (enemy.outOfBounds(gameData)){
