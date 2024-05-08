@@ -1,10 +1,11 @@
 package dk.sdu.mmmi.cbse.asteroidsystem;
 
-import dk.sdu.mmmi.cbse.common.asteroid.IAsteroidSplitter;
+import dk.sdu.mmmi.cbse.common.asteroid.Asteroid;
+import dk.sdu.mmmi.cbse.common.asteroid.IAsteroidSplitterSPI;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.entities.Entity;
 
-public class AsteroidSplitterImplementation implements IAsteroidSplitter {
+public class AsteroidSplitterImplementation implements IAsteroidSplitterSPI {
     @Override
     public void splitAsteroid(Entity asteroid, World world) {
         if (asteroid instanceof Asteroid asteroid1 && asteroid1.getHealth() > 1) {
@@ -26,6 +27,7 @@ public class AsteroidSplitterImplementation implements IAsteroidSplitter {
                 ast.setY(asteroid.getY() + changeY);
                 world.addEntity(ast);
             }
+            world.removeEntity(asteroid);
         }
     }
 }

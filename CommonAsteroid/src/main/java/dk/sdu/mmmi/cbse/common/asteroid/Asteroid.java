@@ -1,19 +1,24 @@
-package dk.sdu.mmmi.cbse.asteroidsystem;
+package dk.sdu.mmmi.cbse.common.asteroid;
 
-import dk.sdu.mmmi.cbse.common.asteroid.IAsteroidSplitter;
-import dk.sdu.mmmi.cbse.common.bullet.Bullet;
 import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.entities.Entity;
 import dk.sdu.mmmi.cbse.common.entities.ICollideableEntity;
 import dk.sdu.mmmi.cbse.common.entities.types.entityType;
 
+import java.util.Collection;
+import java.util.ServiceLoader;
+
+import static java.util.stream.Collectors.toList;
+
 /**
  *
  * @author Aleksander
  */
 public class Asteroid extends Entity implements ICollideableEntity {
-    private IAsteroidSplitter asteroidSplitter = new AsteroidSplitterImplementation();
+    private Collection<? extends IAsteroidSplitterSPI> getAsteroidSplitterSPIs() {
+        return ServiceLoader.load(IAsteroidSplitterSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    }
 
     public Asteroid() {
         this.setHealth(3);
@@ -72,10 +77,17 @@ public class Asteroid extends Entity implements ICollideableEntity {
 
     @Override
     public void collide(World world, Entity otherEntity) {
-        if (otherEntity instanceof Bullet && this.getHealth() > 1) {
-            this.asteroidSplitter.splitAsteroid(this, world);
-            world.removeEntity(this);
+        if (otherEntity.getType() == entityType.BULLET && this.getHealth() >= 2) {
+            getAsteroidSplitterSPIs().stream().findFirst().ifPresent(
+                    spi ->{
+                        spi.splitAsteroid(this, world);
+                    }
+            );
             return;
+        }
+        if (otherEntity.getType() == entityType.BULLET && this.getHealth() <= 1) {
+            world.removeEntity(this);
+            world.updateAsteroidsDestroyed();
         }
         world.removeEntity(this);
     }
