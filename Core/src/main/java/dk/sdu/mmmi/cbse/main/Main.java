@@ -16,10 +16,16 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.lang.module.Configuration;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReference;
+import java.lang.module.ModuleDescriptor;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -29,9 +35,38 @@ public class Main extends Application {
     private final World world = new World();
     private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
     private final Pane gameWindow = new Pane();
+    private static ModuleLayer layer;
     
 
     public static void main(String[] args) {
+
+        Path pluginsDir = Paths.get("plugins"); // Directory with plugins JARs
+
+
+        // Search for plugins in the plugins directory
+        ModuleFinder pluginsFinder = ModuleFinder.of(pluginsDir);
+
+        // Find all names of all found plugin modules
+        List<String> plugins = pluginsFinder
+                .findAll()
+                .stream()
+                .map(ModuleReference::descriptor)
+                .map(ModuleDescriptor::name)
+                .collect(Collectors.toList());
+        System.out.println(plugins.size());
+        plugins.forEach(s -> System.out.println(s));
+        // Create configuration that will resolve plugin modules
+        // (verify that the graph of modules is correct)
+        Configuration pluginsConfiguration = ModuleLayer
+                .boot()
+                .configuration()
+                .resolve(pluginsFinder, ModuleFinder.of(), plugins);
+
+        // Create a module layer for plugins
+        layer = ModuleLayer
+                .boot()
+                .defineModulesWithOneLoader(pluginsConfiguration, ClassLoader.getSystemClassLoader());
+
         launch(Main.class);
     }
 
@@ -106,10 +141,10 @@ public class Main extends Application {
 
     private void update() {
 
+        //Update
         if (gameWindow.getChildren().get(0) instanceof Text text) {
             text.setText("Destroyed asteroids: " + world.getAsteroidsDestroyed());
         }
-        // Update
         for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
             entityProcessorService.process(gameData, world);
         }
@@ -140,14 +175,23 @@ public class Main extends Application {
     }
 
     private Collection<? extends IGamePluginService> getPluginServices() {
-        return ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(layer, IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
     private Collection<? extends IEntityProcessingService> getEntityProcessingServices() {
-        return ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(layer, IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 
     private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
-        return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+        return ServiceLoader.load(layer, IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    }
+
+    private static ModuleLayer createLayer(String from, String module) {
+        System.out.println("Layer created");
+
+        var finder = ModuleFinder.of(Paths.get(from));
+        var parent = ModuleLayer.boot();
+        var cf = parent.configuration().resolve(finder, ModuleFinder.of(), Set.of(module));
+        return parent.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
     }
 }
