@@ -19,7 +19,7 @@ public class PlayerPlugin implements IGamePluginService {
         world.addEntity(player);
     }
 
-    private Entity createPlayerShip(GameData gameData) {
+    Entity createPlayerShip(GameData gameData) {
         Entity playerShip = new Player();
         playerShip.setX(gameData.getDisplayHeight()/2);
         playerShip.setY(gameData.getDisplayWidth()/2);
