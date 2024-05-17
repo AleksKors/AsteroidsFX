@@ -15,11 +15,6 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.lang.module.ModuleDescriptor;
-import java.lang.module.ModuleFinder;
-import java.lang.module.ModuleReference;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -34,14 +29,13 @@ public class Game {
     private final List<IPostEntityProcessingService> postEntityProcessingServices;
 
     Game(List<IGamePluginService> gamePluginServices, List<IEntityProcessingService> entityProcessingServiceList, List<IPostEntityProcessingService> postEntityProcessingServices) {
-        ModuleLayer layer = createLayer();
         this.gamePluginServices = gamePluginServices;
         this.entityProcessingServiceList = entityProcessingServiceList;
         this.postEntityProcessingServices = postEntityProcessingServices;
 
-        this.entityProcessingServiceList.addAll(ServiceLoader.load(layer, IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
-        this.gamePluginServices.addAll(ServiceLoader.load(layer, IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
-        this.postEntityProcessingServices.addAll(ServiceLoader.load(layer, IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
+        this.entityProcessingServiceList.addAll(ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
+        this.gamePluginServices.addAll(ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
+        this.postEntityProcessingServices.addAll(ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
 
     }
 
@@ -113,7 +107,7 @@ public class Game {
 
         //Update
         if (gameWindow.getChildren().get(0) instanceof Text) {
-            ((javafx.scene.text.Text)gameWindow.getChildren().get(0)).setText("Destroyed asteroids: " + world.getAsteroidsDestroyed());
+            ((javafx.scene.text.Text) gameWindow.getChildren().get(0)).setText("Destroyed asteroids: " + world.getAsteroidsDestroyed());
         }
         for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
             entityProcessorService.process(gameData, world);
@@ -124,7 +118,7 @@ public class Game {
     }
 
     private void draw() {
-        for(Entity entity : world.entitiesToRemove){
+        for (Entity entity : world.entitiesToRemove) {
             gameWindow.getChildren().remove(polygons.get(entity));
             polygons.remove(entity);
         }
@@ -154,26 +148,5 @@ public class Game {
 
     public List<IPostEntityProcessingService> getPostEntityProcessingServices() {
         return postEntityProcessingServices;
-    }
-
-    private static ModuleLayer createLayer() {
-        System.out.println("Layer created");
-        // Directory with plugins JARs
-        Path pluginsDir = Paths.get("plugins");
-        // Search for plugins in the plugins directory
-        ModuleFinder pluginsFinder = ModuleFinder.of(pluginsDir);
-        // Find all names of all found plugin modules
-        List<String> plugins = pluginsFinder
-                .findAll()
-                .stream()
-                .map(ModuleReference::descriptor)
-                .map(ModuleDescriptor::name)
-                .collect(Collectors.toList());
-
-        var finder = ModuleFinder.of(pluginsDir);
-        var parent = ModuleLayer.boot();
-        var cf = parent.configuration().resolve(finder, ModuleFinder.of(), plugins);
-
-        return parent.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
     }
 }
