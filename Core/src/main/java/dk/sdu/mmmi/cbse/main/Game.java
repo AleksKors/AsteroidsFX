@@ -15,6 +15,11 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.lang.module.ModuleDescriptor;
+import java.lang.module.ModuleFinder;
+import java.lang.module.ModuleReference;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -33,9 +38,10 @@ public class Game {
         this.entityProcessingServiceList = entityProcessingServiceList;
         this.postEntityProcessingServices = postEntityProcessingServices;
 
-        this.entityProcessingServiceList.addAll(ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
-        this.gamePluginServices.addAll(ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
-        this.postEntityProcessingServices.addAll(ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
+        ModuleLayer layer = createLayer();
+        this.entityProcessingServiceList.addAll(ServiceLoader.load(layer, IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
+        this.gamePluginServices.addAll(ServiceLoader.load(layer, IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
+        this.postEntityProcessingServices.addAll(ServiceLoader.load(layer, IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
 
     }
 
@@ -148,5 +154,25 @@ public class Game {
 
     public List<IPostEntityProcessingService> getPostEntityProcessingServices() {
         return postEntityProcessingServices;
+    }
+
+    public ModuleLayer createLayer() {
+        // Directory with plugins JARs
+        Path pluginsDir = Paths.get("plugins");
+        // Search for plugins in the plugins directory
+        ModuleFinder pluginsFinder = ModuleFinder.of(pluginsDir);
+        // Find all names of all found plugin modules
+        List<String> plugins = pluginsFinder
+                .findAll()
+                .stream()
+                .map(ModuleReference::descriptor)
+                .map(ModuleDescriptor::name)
+                .collect(Collectors.toList());
+
+        var finder = ModuleFinder.of(pluginsDir);
+        var parent = ModuleLayer.boot();
+        var cf = parent.configuration().resolve(finder, ModuleFinder.of(), plugins);
+
+        return parent.defineModulesWithOneLoader(cf, ClassLoader.getSystemClassLoader());
     }
 }
