@@ -6,6 +6,7 @@ import dk.sdu.mmmi.cbse.common.data.GameData;
 import dk.sdu.mmmi.cbse.common.data.World;
 import dk.sdu.mmmi.cbse.common.entities.Entity;
 import dk.sdu.mmmi.cbse.common.entities.ShootingEntity;
+import dk.sdu.mmmi.cbse.common.entities.types.entityType;
 import dk.sdu.mmmi.cbse.common.services.IEntityProcessingService;
 
 public class BulletControlSystem implements IEntityProcessingService, BulletSPI {
@@ -26,26 +27,16 @@ public class BulletControlSystem implements IEntityProcessingService, BulletSPI 
 
     @Override
     public Entity createBullet(ShootingEntity shooter, GameData gameData) {
-        if (shootCheck(shooter)) {
-            Bullet bullet = new Bullet();
+        if (shooter.shootCheck()) {
+            Bullet bullet = new Bullet(shooter);
+            bullet.setPolygonCoordinates(1, -1, 1, 1, -1, 1, -1, -1);
+            bullet.setRadius();
+            bullet.setType(entityType.BULLET);
             bullet.setX(shooter.getX());
             bullet.setY(shooter.getY());
             bullet.setRotation(shooter.getRotation());
-            bullet.setShooter((ShootingEntity) shooter);
-            ((ShootingEntity) shooter).setLastShot();
             return bullet;
         }
         return null;
     }
-
-    private void setShape(Entity entity) {
-    }
-
-    public boolean shootCheck(Entity shooter) {
-        if (shooter instanceof ShootingEntity) {
-            return (System.nanoTime() - ((ShootingEntity) shooter).getLastShot()) / 1_000_000_000.0f > ((ShootingEntity) shooter).getSHOOT_DELAY();
-        }
-        return false;
-    }
-
 }

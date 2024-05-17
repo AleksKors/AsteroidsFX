@@ -8,6 +8,7 @@ public interface IEntityProcessingService {
     /**
      * This method is responsible for processing game entities.
      * It is called every frame and is used to update the state of the game world.
+     * It's called in the Game class in the update() method.
      *
      * @param gameData An instance of GameData that holds data related to the game state.
      * @param world An instance of World that represents the game world.

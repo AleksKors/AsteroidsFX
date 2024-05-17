@@ -1,6 +1,7 @@
 package dk.sdu.mmmi.cbse.common.data;
 
 import dk.sdu.mmmi.cbse.common.entities.Entity;
+import dk.sdu.mmmi.cbse.common.entities.ICollideableEntity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
  * @author jcs
  */
 public class World {

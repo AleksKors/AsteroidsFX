@@ -9,8 +9,8 @@ public class AsteroidSplitterImplementation implements IAsteroidSplitterSPI {
     @Override
     public void splitAsteroid(Entity asteroid, World world) {
         if (asteroid instanceof Asteroid asteroid1 && asteroid1.getHealth() > 1) {
-            Asteroid asteroid2 = new Asteroid(asteroid1.getHealth() - 1);
-            Asteroid asteroid3 = new Asteroid(asteroid1.getHealth() - 1);
+            Asteroid asteroid2 = AsteroidControlSystem.createAsteroid(asteroid1.getHealth() - 1);
+            Asteroid asteroid3 = AsteroidControlSystem.createAsteroid(asteroid1.getHealth() - 1);
             Asteroid[] asteroidList = {asteroid2, asteroid3};
             double rotation = Math.random() * 360;
             for (int i = 0; i < asteroidList.length; i++) {

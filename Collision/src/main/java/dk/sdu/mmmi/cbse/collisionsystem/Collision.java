@@ -19,7 +19,7 @@ public class Collision implements IPostEntityProcessingService {
                     }
                     if (entity2 instanceof ICollideableEntity collideableEntity2) {
                         // CollisionDetection
-                        if (this.collides(entity1, entity2)) {
+                        if (this.collides(collideableEntity1, collideableEntity2)) {
                             collideableEntity1.collide(world, entity2);
                             collideableEntity2.collide(world, entity1);
                         }
@@ -30,11 +30,10 @@ public class Collision implements IPostEntityProcessingService {
 
     }
 
-    public Boolean collides(Entity entity1, Entity entity2) {
-        float dx = (float) entity1.getX() - (float) entity2.getX();
-        float dy = (float) entity1.getY() - (float) entity2.getY();
+    private Boolean collides(ICollideableEntity entity1, ICollideableEntity entity2) {
+        float dx = (float) ((Entity) entity1).getX() - (float) ((Entity) entity2).getX();
+        float dy = (float) ((Entity) entity1).getY() - (float) ((Entity) entity2).getY();
         float distance = (float) Math.sqrt(dx * dx + dy * dy);
         return distance < (entity1.getRadius() + entity2.getRadius());
     }
-
 }

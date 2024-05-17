@@ -8,10 +8,27 @@ import dk.sdu.mmmi.cbse.common.entities.ShootingEntity;
 import dk.sdu.mmmi.cbse.common.entities.types.entityType;
 
 public class Enemy extends ShootingEntity implements ICollideableEntity {
+    private double radius;
+
     public Enemy() {
         this.setPolygonCoordinates(-8,-6,8,0,-8,6);
-        this.setRadius(8);
         this.setType(entityType.ENEMY);
+        this.setRadius();
+    }
+
+    @Override
+    public double getRadius() {
+        return this.radius;
+    }
+
+    @Override
+    public void setRadius() {
+        double max = 0;
+        double[] arr = this.getPolygonCoordinates();
+        for (int i = 1; i < arr.length; i++)
+            if (arr[i] > max)
+                max = arr[i];
+        this.radius = max;
     }
 
     @Override

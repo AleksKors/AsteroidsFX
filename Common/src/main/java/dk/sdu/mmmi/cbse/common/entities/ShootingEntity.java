@@ -1,17 +1,14 @@
 package dk.sdu.mmmi.cbse.common.entities;
 
-public abstract class ShootingEntity extends Entity{
-    private final float SHOOT_DELAY = 0.2f;
-    private double lastShot;
+public class ShootingEntity extends Entity {
+    private long lastShot = 0;
 
-    public float getSHOOT_DELAY() {
-        return SHOOT_DELAY;
-    }
-
-    public double getLastShot() {
-        return this.lastShot;
-    }
-    public void setLastShot() {
-        this.lastShot = System.nanoTime();
+    public boolean shootCheck() {
+        float shootDelay = 0.2f;
+        if ((System.currentTimeMillis() - this.lastShot) / 1_000f > shootDelay) {
+            this.lastShot = System.currentTimeMillis();
+            return true;
+        }
+        return false;
     }
 }

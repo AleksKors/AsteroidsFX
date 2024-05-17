@@ -32,14 +32,12 @@ public class Game {
     private final List<IGamePluginService> gamePluginServices;
     private final List<IEntityProcessingService> entityProcessingServiceList;
     private final List<IPostEntityProcessingService> postEntityProcessingServices;
-    private static ModuleLayer layer;
 
     Game(List<IGamePluginService> gamePluginServices, List<IEntityProcessingService> entityProcessingServiceList, List<IPostEntityProcessingService> postEntityProcessingServices) {
+        ModuleLayer layer = createLayer();
         this.gamePluginServices = gamePluginServices;
         this.entityProcessingServiceList = entityProcessingServiceList;
         this.postEntityProcessingServices = postEntityProcessingServices;
-
-        layer = createLayer();
 
         this.entityProcessingServiceList.addAll(ServiceLoader.load(layer, IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
         this.gamePluginServices.addAll(ServiceLoader.load(layer, IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()));
@@ -47,7 +45,7 @@ public class Game {
 
     }
 
-    public void start(Stage window) throws Exception {
+    public void start(Stage window) {
         Text text = new Text(10, 20, "Destroyed asteroids: " + world.getAsteroidsDestroyed());
         gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
         gameWindow.getChildren().add(text);

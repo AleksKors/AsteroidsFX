@@ -177,7 +177,7 @@ public class PlayerTest {
         when(this.gameData.getDisplayHeight()).thenReturn(100);
 
         BulletSPI bulletSPI = mock(BulletSPI.class);
-        when(bulletSPI.createBullet(any(ShootingEntity.class), any(GameData.class))).thenReturn(new Bullet());
+        when(bulletSPI.createBullet(any(ShootingEntity.class), any(GameData.class))).thenReturn(new Bullet(this.player));
         PlayerControlSystem controlSystem = spy(new PlayerControlSystem());
         doReturn(List.of(bulletSPI)).when(controlSystem).getBulletSPIs();
 
