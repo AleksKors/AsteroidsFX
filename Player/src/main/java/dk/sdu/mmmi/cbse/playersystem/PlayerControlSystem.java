@@ -15,10 +15,12 @@ import static java.util.stream.Collectors.toList;
 
 
 public class PlayerControlSystem implements IEntityProcessingService {
+    Collection<? extends BulletSPI> getBulletSPIs() {
+        return ServiceLoader.load(BulletSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    }
 
     @Override
     public void process(GameData gameData, World world) {
-            
         for (Entity player : world.getEntities(Player.class)) {
             if (gameData.getKeys().isDown(GameKeys.LEFT)) {
                 player.setRotation(player.getRotation() - 2);
@@ -34,30 +36,23 @@ public class PlayerControlSystem implements IEntityProcessingService {
             }
             if (gameData.getKeys().isDown(GameKeys.SPACE)) {
                 if (player instanceof ShootingEntity shootingPlayer) {
-                getBulletSPIs().stream().findFirst().ifPresent(
-                        spi ->{world.addEntity(spi.createBullet(shootingPlayer, gameData));}
-                );
+                    getBulletSPIs().stream().findFirst().ifPresent(spi -> {
+                        world.addEntity(spi.createBullet(shootingPlayer, gameData));
+                    });
                 }
             }
-
-            if (player.outOfBounds(gameData)){
-                if (player.getX() < 0) {
-                    player.setX(0);
-                }
-                if (player.getX() > gameData.getDisplayWidth()) {
-                    player.setX(gameData.getDisplayWidth());
-                }
-                if (player.getY() < 0) {
-                    player.setY(0);
-                }
-                if (player.getY() > gameData.getDisplayHeight()) {
-                    player.setY(gameData.getDisplayHeight());
-                }
+            if (player.getX() < 0) {
+                player.setX(0);
+            }
+            if (player.getX() > gameData.getDisplayWidth()) {
+                player.setX(gameData.getDisplayWidth());
+            }
+            if (player.getY() < 0) {
+                player.setY(0);
+            }
+            if (player.getY() > gameData.getDisplayHeight()) {
+                player.setY(gameData.getDisplayHeight());
             }
         }
-    }
-
-    Collection<? extends BulletSPI> getBulletSPIs() {
-        return ServiceLoader.load(BulletSPI.class).stream().map(ServiceLoader.Provider::get).collect(toList());
     }
 }

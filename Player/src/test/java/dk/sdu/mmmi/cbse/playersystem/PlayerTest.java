@@ -11,6 +11,7 @@ import dk.sdu.mmmi.cbse.common.entities.types.entityType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -22,10 +23,12 @@ import static org.mockito.Mockito.*;
 public class PlayerTest {
     private Player player;
     private World world;
-    private GameData gameData;
-    private GameKeys keys;
     private PlayerControlSystem playerControlSystem;
     private PlayerPlugin playerPlugin;
+    @Mock
+    private GameData gameData;
+    @Mock
+    private GameKeys keys;
 
 
     @BeforeEach
@@ -33,8 +36,6 @@ public class PlayerTest {
         this.player = new Player();
         this.world = new World();
         this.world.addEntity(this.player);
-        this.gameData = mock(GameData.class);
-        this.keys = mock(GameKeys.class);
         this.playerControlSystem = new PlayerControlSystem();
         this.playerPlugin = new PlayerPlugin();
     }
@@ -178,9 +179,8 @@ public class PlayerTest {
 
         BulletSPI bulletSPI = mock(BulletSPI.class);
         when(bulletSPI.createBullet(any(ShootingEntity.class), any(GameData.class))).thenReturn(new Bullet(this.player));
-        PlayerControlSystem controlSystem = spy(new PlayerControlSystem());
+        PlayerControlSystem controlSystem = spy(this.playerControlSystem);
         doReturn(List.of(bulletSPI)).when(controlSystem).getBulletSPIs();
-
 
         //Method call
         controlSystem.process(this.gameData, this.world);
@@ -228,6 +228,7 @@ public class PlayerTest {
     void startTest() {
         //Setup
         this.world.getEntities().clear();
+        assertTrue(this.world.getEntities().isEmpty());
 
         //Method call
         this.playerPlugin.start(this.gameData, this.world);
