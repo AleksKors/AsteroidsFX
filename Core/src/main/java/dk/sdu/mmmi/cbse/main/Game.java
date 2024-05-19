@@ -15,6 +15,10 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,7 +38,7 @@ public class Game {
     }
 
     void start(Stage window) {
-        Text text = new Text(10, 20, "Destroyed asteroids: " + world.getAsteroidsDestroyed());
+        Text text = new Text(10, 20, "Destroyed asteroids: 0");
         gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
         gameWindow.getChildren().add(text);
 
@@ -98,9 +102,8 @@ public class Game {
 
     private void update() {
         //Update
-        if (gameWindow.getChildren().get(0) instanceof Text) {
-            ((javafx.scene.text.Text) gameWindow.getChildren().get(0)).setText("Destroyed asteroids: " + world.getAsteroidsDestroyed());
-        }
+        updateScore();
+
         for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
             entityProcessorService.process(gameData, world);
         }
@@ -128,6 +131,20 @@ public class Game {
             polygon.setTranslateY(entity.getY());
             polygon.setRotate(entity.getRotation());
         }
+    }
+    public void updateScore() {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/score?point=0"))
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(score -> {
+                    if (gameWindow.getChildren().get(0) instanceof Text scoreText) {
+                        scoreText.setText("Destroyed asteroids: " + score);
+                    }
+                });
     }
 
     private List<IGamePluginService> getGamePluginServices() {

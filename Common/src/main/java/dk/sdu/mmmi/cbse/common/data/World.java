@@ -16,7 +16,6 @@ public class World {
 
     private final Map<String, Entity> entityMap = new ConcurrentHashMap<>();
     public List<Entity> entitiesToRemove = new ArrayList<>();
-    private int asteroidsDestroyed = 0;
 
     public String addEntity(Entity entity) {
         if (entity != null) {
@@ -52,14 +51,6 @@ public class World {
 
     public Entity getEntity(String ID) {
         return entityMap.get(ID);
-    }
-
-    public void updateAsteroidsDestroyed() {
-        asteroidsDestroyed++;
-    }
-
-    public int getAsteroidsDestroyed() {
-        return asteroidsDestroyed;
     }
 
 }

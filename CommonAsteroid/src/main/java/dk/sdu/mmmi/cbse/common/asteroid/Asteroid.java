@@ -6,6 +6,10 @@ import dk.sdu.mmmi.cbse.common.entities.Entity;
 import dk.sdu.mmmi.cbse.common.entities.ICollideableEntity;
 import dk.sdu.mmmi.cbse.common.entities.types.entityType;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.ServiceLoader;
 
@@ -50,8 +54,19 @@ public class Asteroid extends Entity implements ICollideableEntity {
         }
         if (otherEntity.getType() == entityType.BULLET && this.getHealth() <= 1) {
             world.removeEntity(this);
-            world.updateAsteroidsDestroyed();
+            updateScore(1);
         }
         world.removeEntity(this);
+    }
+
+    public void updateScore(int point) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/score?point=" + point))
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(System.out::println);
     }
 }
